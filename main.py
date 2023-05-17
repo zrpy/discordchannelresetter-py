@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands,tasks
 import datetime
 import pytz
+import asyncio
 
 session = discord.Client(intents=discord.Intents.all())
 token=""
@@ -18,22 +19,32 @@ resettimes={
     '16:00',
     '18:00',
 }
+
+async def nuker(guildid):
+  guild = session.get_guild(int(guildid))
+  for channel in guild.text_channels:
+    if channel.topic==None:continue
+    if 'channelresetter' in channel.topic:
+      position = channel.position
+      await channel.delete()
+      resetedchannel = await channel.clone()
+      await resetedchannel.edit(position=position)
+      embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@whitehatpy](https://twitter.com/whitehatpy', timestamp=datetime.datetime.utcnow())
+      embed.set_footer(text=f"Produced by @whitehatpy", icon_url=session.user.avatar_url)
+      await resetedchannel.send(embed=embed)
+
 @tasks.loop(seconds=5)
-async def nuke_channels():
-    nowtime = datetime.datetime.now(pytz.timezone('Asia/Tokyo')).strftime('%H:%M')
-    if nowtime in resettimes:
+async def nukeloops():
+  now = datetime.datetime.now(pytz.timezone('Asia/Tokyo')).strftime('%H:%M')
+  if now in resettimes:
+    tasks=[]
     for guildid in guilds:
-      guild = session.get_guild(int(guildid))
-      for channel in guild.text_channels:
-        if channel.topic==None:continue
-        if 'channelresetter' in channel.topic:
-          position = channel.position
-          await channel.delete()
-          resetedchannel = await channel.clone()
-          await resetedchannel.edit(position=position)
-          embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@whitehatpy](https://twitter.com/whitehatpy', timestamp=datetime.datetime.utcnow())
-          embed.set_footer(text=f"Produced by @whitehatpy", icon_url=session.user.avatar_url)
-          await resetedchannel.send(embed=embed)
+      tasks.append(asyncio.create_task(nuker(guildid)))
+    await asyncio.gather(*tasks)
+
+@session.event
+async def on_ready():
+  nukeloops.start()
 
 @session.slash_command(name="setupnuke",description="チャンネルログ削除を設定するよ")
 @commands.has_guild_permissions(manage_guild=True,manage_channels=True)
