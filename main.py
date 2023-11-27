@@ -46,18 +46,18 @@ async def nukeloops():
 async def on_ready():
   nukeloops.start()
 
-@session.slash_command(name="setupnuke",description="チャンネルログ削除を設定するよ")
+@session.slash_command(name="addnuke",description="チャンネルログ削除を設定するよ")
 @commands.has_guild_permissions(manage_guild=True,manage_channels=True)
-async def setupnuke(ctx):
+async def addnuke(ctx):
   if ctx.guild.id in guilds:
     await ctx.respond("設定しています")
     return
   guilds[ctx.guild.id]={}
   await ctx.respond("設定しました")
 
-@session.slash_command(name="unsetupnuke",description="チャンネルログ削除の設定を削除するよ")
+@session.slash_command(name="deletenuke",description="チャンネルログ削除の設定を削除するよ")
 @commands.has_guild_permissions(manage_guild=True,manage_channels=True)
-async def unsetupnuke(ctx):
+async def deletenuke(ctx):
   if　not ctx.guild.id in guilds:
     await ctx.respond("データが無いです")
     return
