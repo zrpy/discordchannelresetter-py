@@ -21,17 +21,17 @@ resettimes={
 }
 
 async def nuker(guildid):
-  guild = session.get_guild(int(guildid))
-  for channel in guild.text_channels:
-    if channel.topic==None:continue
-    if 'channelresetter' in channel.topic:
-      position = channel.position
-      await channel.delete()
-      resetedchannel = await channel.clone()
-      await resetedchannel.edit(position=position)
-      embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@whitehatpy](https://twitter.com/whitehatpy)', timestamp=datetime.datetime.utcnow())
-      embed.set_footer(text=f"Produced by @whitehatpy", icon_url=session.user.avatar_url)
-      await resetedchannel.send(embed=embed)
+    guild = session.get_guild(int(guildid))
+    for channel in guild.text_channels:
+        if not channel.topic==None:
+            if 'channelresetter' in channel.topic:
+                position = channel.position
+                await channel.delete()
+                resetedchannel = await channel.clone()
+                await resetedchannel.edit(position=position)
+                embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@whitehatpy](https://twitter.com/whitehatpy)', timestamp=datetime.datetime.utcnow())
+                embed.set_footer(text=f"Produced by @whitehatpy", icon_url=session.user.avatar_url)
+                await resetedchannel.send(embed=embed)
 
 @tasks.loop(seconds=5)
 async def nukeloops():
@@ -46,21 +46,22 @@ async def nukeloops():
 async def on_ready():
   nukeloops.start()
 
-@session.slash_command(name="addnuke",description="チャンネルログ削除を設定するよ")
+@session.slash_command(name="add_reset",description="チャンネルログ削除を設定するよ")
 @commands.has_guild_permissions(manage_guild=True,manage_channels=True)
-async def addnuke(ctx):
+async def add_reset(ctx):
   if ctx.guild.id in guilds:
     await ctx.respond("設定しています")
     return
   guilds[ctx.guild.id]={}
   await ctx.respond("設定しました")
 
-@session.slash_command(name="deletenuke",description="チャンネルログ削除の設定を削除するよ")
+@session.slash_command(name="remove_reset",description="チャンネルログ削除の設定を削除するよ")
 @commands.has_guild_permissions(manage_guild=True,manage_channels=True)
-async def deletenuke(ctx):
+async def remove_reset(ctx):
   if　not ctx.guild.id in guilds:
     await ctx.respond("データが無いです")
     return
   guilds.pop(ctx.guild.id)
   await ctx.respond("データを削除しました")
+
 session.run(token)
