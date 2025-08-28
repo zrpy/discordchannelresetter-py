@@ -40,7 +40,7 @@ async def nuker(guildid):
                     await channel.delete()
                     resetedchannel = await channel.clone()
                     await resetedchannel.edit(position=position)
-                    embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@zrpy0](https://x.com)', timestamp=datetime.datetime.now(datetime.UTC))
+                    embed = discord.Embed(title='チャンネルをリセットしました',description='サポートアカウント:[@zrpy0](https://x.com)', timestamp=datetime.datetime.now(pytz.timezone('Asia/Tokyo')))
                     embed.set_footer(text=f"Produced by @zrpy0", icon_url=session.user.display_avatar.url)
                     await resetedchannel.send(embed=embed)
 
